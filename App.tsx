@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { OneSignal } from "react-native-onesignal";
 import { StatusBar } from "react-native";
-import { OneSignal, OSNotification } from "react-native-onesignal";
 import { NativeBaseProvider } from "native-base";
 import {
   useFonts,
@@ -12,7 +11,6 @@ import { Routes } from "./src/routes";
 
 import { THEME } from "./src/theme";
 import { Loading } from "./src/components/Loading";
-import { Notification } from "./src/components/Notification";
 
 import { CartContextProvider } from "./src/contexts/CartContext";
 
@@ -29,23 +27,9 @@ OneSignal.Notifications.requestPermission(true);
 
 export default function App() {
   const [fontsLoaded] = useFonts({ Roboto_400Regular, Roboto_700Bold });
-  const [notification, setNotification] = useState<OSNotification>();
 
   tagUserInfoCreate();
   // tagUserEmailRemove();
-
-  useEffect(() => {
-    const unsubscribe = OneSignal.Notifications.addEventListener(
-      "foregroundWillDisplay",
-      (notificationReceivedEvent) => {
-        const response = notificationReceivedEvent.getNotification();
-
-        setNotification(response);
-      }
-    );
-
-    return () => unsubscribe;
-  }, []);
 
   return (
     <NativeBaseProvider theme={THEME}>
@@ -57,13 +41,6 @@ export default function App() {
       <CartContextProvider>
         {fontsLoaded ? <Routes /> : <Loading />}
       </CartContextProvider>
-
-      {notification?.title && (
-        <Notification
-          title={notification.title}
-          onClose={() => setNotification(undefined)}
-        />
-      )}
     </NativeBaseProvider>
   );
 }
